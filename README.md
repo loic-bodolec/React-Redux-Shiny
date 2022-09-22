@@ -1,4 +1,6 @@
-# 7150626-Gerez-letat-de-votre-app-avec-Redux
+# OpenClassRooms : Utilisez le state manager Redux pour gérer l’état de vos applications
+
+[lien vers le cours](https://openclassrooms.com/fr/courses/7150626-utilisez-le-state-manager-redux-pour-gerer-l-etat-de-vos-applications)
 
 Pour lancer l'application:
 
