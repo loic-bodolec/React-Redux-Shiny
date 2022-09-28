@@ -1,4 +1,4 @@
-import { createSlice } from '@reduxjs/toolkit'
+import { createSlice } from '@reduxjs/toolkit';
 
 const themeSlice = createSlice({
   // le nom du slice
@@ -9,18 +9,18 @@ const themeSlice = createSlice({
   reducers: {
     // l'action toggle ('theme/toggle')
     toggle: (state) => {
-      return state === 'light' ? 'dark' : 'light'
+      return state === 'light' ? 'dark' : 'light';
     },
     // l'action set ('theme/set')
     set: (state, action) => {
-      return action.payload
+      return action.payload;
     },
   },
-})
+});
 
 // on extrait les actions et le reducer
-const { actions, reducer } = themeSlice
+const { actions, reducer } = themeSlice;
 // on export chaque action individuellement
-export const { set, toggle } = actions
+export const { set, toggle } = actions;
 // on export le reducer comme default export
-export default reducer
+export default reducer;

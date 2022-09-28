@@ -1,5 +1,5 @@
-import * as answersActions from './answers'
-import answersReducer from './answers'
+import * as answersActions from './answers';
+import answersReducer from './answers';
 
 it('reducers', () => {
   expect(
@@ -8,7 +8,7 @@ it('reducers', () => {
       answersActions.saveAnswer({
         questionNumber: '2',
         answer: false,
-      })
-    )
-  ).toEqual({ 1: true, 2: false })
-})
+      }),
+    ),
+  ).toEqual({ 1: true, 2: false });
+});

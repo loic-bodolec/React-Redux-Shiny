@@ -1,10 +1,10 @@
-import styled from 'styled-components'
-import EmptyList from '../../components/EmptyList'
-import colors from '../../utils/style/colors'
-import { StyledLink, Loader } from '../../utils/style/Atoms'
-import { useSelector } from 'react-redux'
-import { selectAnswers, selectTheme } from '../../utils/selectors'
-import { useQuery } from 'react-query'
+import styled from 'styled-components';
+import EmptyList from '../../components/EmptyList';
+import colors from '../../utils/style/colors';
+import { StyledLink, Loader } from '../../utils/style/Atoms';
+import { useSelector } from 'react-redux';
+import { selectAnswers, selectTheme } from '../../utils/selectors';
+import { useQuery } from 'react-query';
 
 const ResultsContainer = styled.div`
   display: flex;
@@ -14,7 +14,7 @@ const ResultsContainer = styled.div`
   padding: 30px;
   background-color: ${({ theme }) =>
     theme === 'light' ? colors.backgroundLight : colors.backgroundDark};
-`
+`;
 
 const ResultsTitle = styled.h2`
   color: ${({ theme }) => (theme === 'light' ? '#000000' : '#ffffff')};
@@ -25,17 +25,16 @@ const ResultsTitle = styled.h2`
   & > span {
     padding-left: 10px;
   }
-`
+`;
 
 const DescriptionWrapper = styled.div`
   padding: 60px;
-`
+`;
 
 const JobTitle = styled.span`
-  color: ${({ theme }) =>
-    theme === 'light' ? colors.primary : colors.backgroundLight};
+  color: ${({ theme }) => (theme === 'light' ? colors.primary : colors.backgroundLight)};
   text-transform: capitalize;
-`
+`;
 
 const JobDescription = styled.div`
   font-size: 18px;
@@ -46,60 +45,55 @@ const JobDescription = styled.div`
   & > span {
     font-size: 20px;
   }
-`
+`;
 
 const LoaderWrapper = styled.div`
   display: flex;
   justify-content: center;
-`
+`;
 
 export function formatQueryParams(answers) {
-  const answerNumbers = Object.keys(answers)
+  const answerNumbers = Object.keys(answers);
 
   return answerNumbers.reduce((previousParams, answerNumber, index) => {
-    const isFirstParam = index === 0
-    const separator = isFirstParam ? '' : '&'
-    return `${previousParams}${separator}a${answerNumber}=${answers[answerNumber]}`
-  }, '')
+    const isFirstParam = index === 0;
+    const separator = isFirstParam ? '' : '&';
+    return `${previousParams}${separator}a${answerNumber}=${answers[answerNumber]}`;
+  }, '');
 }
 
 export function formatJobList(title, listLength, index) {
   if (index === listLength - 1) {
-    return title
+    return title;
   } else {
-    return `${title},`
+    return `${title},`;
   }
 }
 
 function Results() {
-  const theme = useSelector(selectTheme)
-  const answers = useSelector(selectAnswers)
-  const fetchParams = formatQueryParams(answers)
+  const theme = useSelector(selectTheme);
+  const answers = useSelector(selectAnswers);
+  const fetchParams = formatQueryParams(answers);
 
-  const { error, data, isLoading } = useQuery(
-    ['results', fetchParams],
-    async () => {
-      const response = await fetch(
-        `http://localhost:8000/results?${fetchParams}`
-      )
-      const data = await response.json()
-      return data
-    }
-  )
+  const { error, data, isLoading } = useQuery(['results', fetchParams], async () => {
+    const response = await fetch(`http://localhost:8000/results?${fetchParams}`);
+    const data = await response.json();
+    return data;
+  });
 
   if (error) {
-    return <span>Il y a un problème</span>
+    return <span>Il y a un problème</span>;
   }
 
-  const resultsData = data?.resultsData
+  const resultsData = data?.resultsData;
 
   if (resultsData?.length < 1) {
-    return <EmptyList theme={theme} />
+    return <EmptyList theme={theme} />;
   }
 
   return isLoading ? (
     <LoaderWrapper>
-      <Loader data-testid="loader" />
+      <Loader data-testid='loader' />
     </LoaderWrapper>
   ) : (
     <ResultsContainer theme={theme}>
@@ -107,33 +101,27 @@ function Results() {
         Les compétences dont vous avez besoin :
         {resultsData &&
           resultsData.map((result, index) => (
-            <JobTitle
-              key={`result-title-${index}-${result.title}`}
-              theme={theme}
-            >
+            <JobTitle key={`result-title-${index}-${result.title}`} theme={theme}>
               {formatJobList(result.title, resultsData.length, index)}
             </JobTitle>
           ))}
       </ResultsTitle>
-      <StyledLink $isFullLink to="/freelances">
+      <StyledLink $isFullLink to='/freelances'>
         Découvrez nos profils
       </StyledLink>
       <DescriptionWrapper>
         {resultsData &&
           resultsData.map((result, index) => (
-            <JobDescription
-              theme={theme}
-              key={`result-detail-${index}-${result.title}`}
-            >
-              <JobTitle theme={theme} data-testid="job-title">
+            <JobDescription theme={theme} key={`result-detail-${index}-${result.title}`}>
+              <JobTitle theme={theme} data-testid='job-title'>
                 {result.title}
               </JobTitle>
-              <p data-testid="job-description">{result.description}</p>
+              <p data-testid='job-description'>{result.description}</p>
             </JobDescription>
           ))}
       </DescriptionWrapper>
     </ResultsContainer>
-  )
+  );
 }
 
-export default Results
+export default Results;
