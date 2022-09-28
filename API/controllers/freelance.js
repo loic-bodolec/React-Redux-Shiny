@@ -1,7 +1,7 @@
-const freelancesData = require('../models/freelances')
+const freelancesData = require('../models/freelances');
 
 function getFreelance(id) {
-	return freelancesData.find((freelancer => freelancer.id === id))
+  return freelancesData.find((freelancer) => freelancer.id === id);
 }
 
-module.exports = getFreelance
+module.exports = getFreelance;
