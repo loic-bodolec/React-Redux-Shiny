@@ -33,7 +33,7 @@ afterAll(() => server.close());
 it('Should display freelancers names after loader is removed', async () => {
   render(<Freelances />);
 
-  await waitForElementToBeRemoved(() => screen.getByTestId('loader'));
+  await waitForElementToBeRemoved(() => screen.queryByTestId('loader'));
   expect(screen.getByText('Harry Potter')).toBeInTheDocument();
   expect(screen.getByText('Hermione Granger')).toBeInTheDocument();
   expect(screen.queryByTestId('loader')).not.toBeInTheDocument();
