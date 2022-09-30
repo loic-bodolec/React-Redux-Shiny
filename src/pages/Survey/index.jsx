@@ -1,12 +1,11 @@
+import { useContext } from 'react';
 import { useParams } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import colors from '../../utils/style/colors';
 import { Loader } from '../../utils/style/Atoms';
-import { useDispatch, useSelector } from 'react-redux';
-import { selectAnswers, selectTheme } from '../../utils/selectors';
-import { saveAnswer } from '../../features/answers';
-import { useQuery } from 'react-query';
+import { SurveyContext } from '../../utils/context';
+import { useFetch, useTheme } from '../../utils/hooks';
 
 const SurveyContainer = styled.div`
   display: flex;
@@ -66,20 +65,14 @@ function Survey() {
   const questionNumberInt = parseInt(questionNumber);
   const prevQuestionNumber = questionNumberInt === 1 ? 1 : questionNumberInt - 1;
   const nextQuestionNumber = questionNumberInt + 1;
-  const theme = useSelector(selectTheme);
-  const answers = useSelector(selectAnswers);
-  const dispatch = useDispatch();
+  const { theme } = useTheme();
 
-  const { error, isLoading, data } = useQuery('survey', async () => {
-    const response = await fetch('http://localhost:8000/survey');
-    const data = await response.json();
-    return data;
-  });
+  const { saveAnswers, answers } = useContext(SurveyContext);
 
   function saveReply(answer) {
-    dispatch(saveAnswer({ questionNumber, answer }));
+    saveAnswers({ [questionNumber]: answer });
   }
-
+  const { data, isLoading, error } = useFetch(`http://localhost:8000/survey`);
   const surveyData = data?.surveyData;
 
   if (error) {

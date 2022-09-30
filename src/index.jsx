@@ -10,20 +10,13 @@ import Header from './components/Header';
 import Footer from './components/Footer';
 import Error from './components/Error';
 import GlobalStyle from './utils/style/GlobalStyle';
-import { Provider } from 'react-redux';
-import store from './utils/store';
-// on importe QueryClient et le Provider
-import { QueryClient, QueryClientProvider } from 'react-query';
-
-// on créer le queryClient
-const queryClient = new QueryClient();
+import { ThemeProvider, SurveyProvider } from './utils/context';
 
 ReactDOM.render(
-  /* On englobe toute l'application dans le Provider */
-  <QueryClientProvider client={queryClient}>
-    <Provider store={store}>
-      <React.StrictMode>
-        <Router>
+  <React.StrictMode>
+    <Router>
+      <ThemeProvider>
+        <SurveyProvider>
           <GlobalStyle />
           <Header />
           <Switch>
@@ -45,9 +38,9 @@ ReactDOM.render(
             </Route>
           </Switch>
           <Footer />
-        </Router>
-      </React.StrictMode>
-    </Provider>
-  </QueryClientProvider>,
+        </SurveyProvider>
+      </ThemeProvider>
+    </Router>
+  </React.StrictMode>,
   document.getElementById('root'),
 );
