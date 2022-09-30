@@ -1,6 +1,5 @@
 import Footer from './';
-import { screen, fireEvent } from '@testing-library/react';
-import { render } from '../../utils/test';
+import { render, screen, fireEvent } from '@testing-library/react';
 
 describe('Footer', () => {
   it('Should render without crashing', async () => {

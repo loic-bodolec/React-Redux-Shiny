@@ -1,10 +1,12 @@
+import { useContext } from 'react';
 import styled from 'styled-components';
 import EmptyList from '../../components/EmptyList';
+import { SurveyContext } from '../../utils/context';
 import colors from '../../utils/style/colors';
+import { useFetch } from '../../utils/hooks';
 import { StyledLink, Loader } from '../../utils/style/Atoms';
 import { useSelector } from 'react-redux';
-import { selectAnswers, selectTheme } from '../../utils/selectors';
-import { useQuery } from 'react-query';
+import { selectTheme } from '../../utils/selectors';
 
 const ResultsContainer = styled.div`
   display: flex;
@@ -72,14 +74,10 @@ export function formatJobList(title, listLength, index) {
 
 function Results() {
   const theme = useSelector(selectTheme);
-  const answers = useSelector(selectAnswers);
-  const fetchParams = formatQueryParams(answers);
+  const { answers } = useContext(SurveyContext);
+  const queryParams = formatQueryParams(answers);
 
-  const { error, data, isLoading } = useQuery(['results', fetchParams], async () => {
-    const response = await fetch(`http://localhost:8000/results?${fetchParams}`);
-    const data = await response.json();
-    return data;
-  });
+  const { data, isLoading, error } = useFetch(`http://localhost:8000/results?${queryParams}`);
 
   if (error) {
     return <span>Il y a un problème</span>;

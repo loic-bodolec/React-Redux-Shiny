@@ -49,7 +49,7 @@ afterAll(() => server.close());
 describe('The Results component', () => {
   it('should display the results after the data is loaded', async () => {
     render(<Results />);
-    await waitForElementToBeRemoved(() => screen.queryByTestId('loader'));
+    await waitForElementToBeRemoved(() => screen.getByTestId('loader'));
     const jobTitleElements = screen.getAllByTestId('job-title');
     expect(jobTitleElements[0].textContent).toBe('seo');
     expect(jobTitleElements.length).toBe(2);
