@@ -1,11 +1,12 @@
-import styled from 'styled-components';
-import { Link } from 'react-router-dom';
-import Card from '../../components/Card';
-import colors from '../../utils/style/colors';
-import { Loader } from '../../utils/style/Atoms';
-import { useSelector } from 'react-redux';
-import { selectTheme } from '../../utils/selectors';
-import { useQuery } from 'react-query';
+import styled from 'styled-components'
+import { Link } from 'react-router-dom'
+import Card from '../../components/Card'
+import colors from '../../utils/style/colors'
+import { Loader } from '../../utils/style/Atoms'
+import { useSelector, useStore } from 'react-redux'
+import { selectFreelances, selectTheme } from '../../utils/selectors'
+import { useEffect } from 'react'
+import { fetchOrUpdateFreelances } from '../../features/freelances'
 
 const CardsContainer = styled.div`
   display: grid;
@@ -14,14 +15,14 @@ const CardsContainer = styled.div`
   grid-template-columns: repeat(2, 1fr);
   align-items: center;
   justify-items: center;
-`;
+`
 
 const PageTitle = styled.h1`
   font-size: 30px;
   text-align: center;
   padding-bottom: 30px;
   color: ${({ theme }) => (theme === 'light' ? '#000000' : '#ffffff')};
-`;
+`
 
 const PageSubtitle = styled.h2`
   font-size: 20px;
@@ -30,33 +31,32 @@ const PageSubtitle = styled.h2`
   text-align: center;
   padding-bottom: 30px;
   color: ${({ theme }) => (theme === 'light' ? '#000000' : '#ffffff')};
-`;
+`
 
 const LoaderWrapper = styled.div`
   display: flex;
   justify-content: center;
-`;
+`
 
 function Freelances() {
-  const {
-    // les données renvoyées par le serveur
-    // null si la requête n'est pas encore résolue
-    data,
-    // booléen qui indique si la requête est en cours
-    isLoading,
-    // l'erreur renvoyé par le serveur
-    // ou null si pas d'erreur
-    error,
-  } = useQuery('freelances', async () => {
-    const response = await fetch('http://localhost:8000/freelances');
-    const data = await response.json();
-    return data;
-  });
+  // on récupère le store grâce au hook useStore()
+  const store = useStore()
 
-  const theme = useSelector(selectTheme);
+  // on utilise useEffect pour lancer la requête au chargement du composant
+  useEffect(() => {
+    // on exécute notre action asynchrone avec le store en paramètre
+    fetchOrUpdateFreelances(store)
+    // On suit la recommandation d'ESLint de passer le store
+    // en dépendances car il est utilisé dans l'effet
+    // cela n'as pas d'impacte sur le fonctionnement car le store ne change jamais
+  }, [store])
 
-  if (error) {
-    return <span>Il y a un problème</span>;
+  const theme = useSelector(selectTheme)
+
+  const freelances = useSelector(selectFreelances)
+
+  if (freelances.status === 'rejected') {
+    return <span>Il y a un problème</span>
   }
 
   return (
@@ -65,13 +65,13 @@ function Freelances() {
       <PageSubtitle theme={theme}>
         Chez Shiny nous réunissons les meilleurs profils pour vous.
       </PageSubtitle>
-      {isLoading ? (
+      {freelances.status === 'pending' || freelances.status === 'void' ? (
         <LoaderWrapper>
-          <Loader theme={theme} data-testid='loader' />
+          <Loader theme={theme} data-testid="loader" />
         </LoaderWrapper>
       ) : (
         <CardsContainer>
-          {data.freelancersList.map((profile) => (
+          {freelances.data.freelancersList.map((profile) => (
             <Link key={`freelance-${profile.id}`} to={`/profile/${profile.id}`}>
               <Card
                 label={profile.job}
@@ -84,7 +84,7 @@ function Freelances() {
         </CardsContainer>
       )}
     </div>
-  );
+  )
 }
 
-export default Freelances;
+export default Freelances

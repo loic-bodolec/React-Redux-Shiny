@@ -1,29 +1,30 @@
-import { useParams } from 'react-router-dom';
-import { Link } from 'react-router-dom';
-import styled from 'styled-components';
-import colors from '../../utils/style/colors';
-import { Loader } from '../../utils/style/Atoms';
-import { useDispatch, useSelector } from 'react-redux';
-import { selectAnswers, selectTheme } from '../../utils/selectors';
-import { saveAnswer } from '../../features/answers';
-import { useQuery } from 'react-query';
+import { useContext, useEffect } from 'react'
+import { useParams } from 'react-router-dom'
+import { Link } from 'react-router-dom'
+import styled from 'styled-components'
+import colors from '../../utils/style/colors'
+import { Loader } from '../../utils/style/Atoms'
+import { SurveyContext } from '../../utils/context'
+import { useSelector, useStore } from 'react-redux'
+import { selectSurvey, selectTheme } from '../../utils/selectors'
+import { fetchOrUpdateSurvey } from '../../features/survey'
 
 const SurveyContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-`;
+`
 
 const QuestionTitle = styled.h2`
   text-decoration: underline;
   text-decoration-color: ${colors.primary};
   color: ${({ theme }) => (theme === 'light' ? '#000000' : '#ffffff')};
-`;
+`
 
 const QuestionContent = styled.span`
   margin: 30px;
   color: ${({ theme }) => (theme === 'light' ? '#000000' : '#ffffff')};
-`;
+`
 
 const LinkWrapper = styled.div`
   padding-top: 30px;
@@ -33,7 +34,7 @@ const LinkWrapper = styled.div`
   & a:first-of-type {
     margin-right: 20px;
   }
-`;
+`
 
 const ReplyBox = styled.button`
   border: none;
@@ -47,52 +48,55 @@ const ReplyBox = styled.button`
   color: ${({ theme }) => (theme === 'light' ? '#000000' : '#ffffff')};
   border-radius: 30px;
   cursor: pointer;
-  box-shadow: ${(props) => (props.isSelected ? `0px 0px 0px 2px ${colors.primary} inset` : 'none')};
+  box-shadow: ${(props) =>
+    props.isSelected ? `0px 0px 0px 2px ${colors.primary} inset` : 'none'};
   &:first-child {
     margin-right: 15px;
   }
   &:last-of-type {
     margin-left: 15px;
   }
-`;
+`
 
 const ReplyWrapper = styled.div`
   display: flex;
   flex-direction: row;
-`;
+`
 
 function Survey() {
-  const { questionNumber } = useParams();
-  const questionNumberInt = parseInt(questionNumber);
-  const prevQuestionNumber = questionNumberInt === 1 ? 1 : questionNumberInt - 1;
-  const nextQuestionNumber = questionNumberInt + 1;
-  const theme = useSelector(selectTheme);
-  const answers = useSelector(selectAnswers);
-  const dispatch = useDispatch();
+  const { questionNumber } = useParams()
+  const questionNumberInt = parseInt(questionNumber)
+  const prevQuestionNumber = questionNumberInt === 1 ? 1 : questionNumberInt - 1
+  const nextQuestionNumber = questionNumberInt + 1
+  const theme = useSelector(selectTheme)
 
-  const { error, isLoading, data } = useQuery('survey', async () => {
-    const response = await fetch('http://localhost:8000/survey');
-    const data = await response.json();
-    return data;
-  });
+  const { saveAnswers, answers } = useContext(SurveyContext)
 
   function saveReply(answer) {
-    dispatch(saveAnswer({ questionNumber, answer }));
+    saveAnswers({ [questionNumber]: answer })
   }
 
-  const surveyData = data?.surveyData;
+  const survey = useSelector(selectSurvey)
+  const store = useStore()
+  useEffect(() => {
+    fetchOrUpdateSurvey(store)
+  }, [store])
 
-  if (error) {
-    return <span>Il y a un problème</span>;
+  const surveyData = survey.data?.surveyData
+
+  const isLoading = survey.status === 'void' || survey.status === 'pending'
+
+  if (survey.status === 'rejected') {
+    return <span>Il y a un problème</span>
   }
 
   return (
     <SurveyContainer>
       <QuestionTitle theme={theme}>Question {questionNumber}</QuestionTitle>
       {isLoading ? (
-        <Loader data-testid='loader' />
+        <Loader data-testid="loader" />
       ) : (
-        <QuestionContent theme={theme} data-testid='question-content'>
+        <QuestionContent theme={theme} data-testid="question-content">
           {surveyData && surveyData[questionNumber]}
         </QuestionContent>
       )}
@@ -117,11 +121,11 @@ function Survey() {
         {surveyData && surveyData[questionNumberInt + 1] ? (
           <Link to={`/survey/${nextQuestionNumber}`}>Suivant</Link>
         ) : (
-          <Link to='/results'>Résultats</Link>
+          <Link to="/results">Résultats</Link>
         )}
       </LinkWrapper>
     </SurveyContainer>
-  );
+  )
 }
 
-export default Survey;
+export default Survey

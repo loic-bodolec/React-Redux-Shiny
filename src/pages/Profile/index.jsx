@@ -1,9 +1,10 @@
-import styled from 'styled-components';
-import { useParams } from 'react-router-dom';
-import colors from '../../utils/style/colors';
-import { useSelector } from 'react-redux';
-import { selectTheme } from '../../utils/selectors';
-import { useQuery } from 'react-query';
+import { useEffect } from 'react'
+import styled from 'styled-components'
+import { useParams } from 'react-router-dom'
+import colors from '../../utils/style/colors'
+import { useSelector, useStore } from 'react-redux'
+import { selectFreelance, selectTheme } from '../../utils/selectors'
+import { fetchOrUpdateFreelance } from '../../features/freelance'
 
 const ProfileWrapper = styled.div`
   display: flex;
@@ -14,63 +15,64 @@ const ProfileWrapper = styled.div`
   margin: 0 90px;
   background-color: ${({ theme }) =>
     theme === 'light' ? colors.backgroundLight : colors.backgroundDark};
-`;
+`
 
 const ProfileDetails = styled.div`
   display: flex;
   flex-direction: column;
   margin-left: 50px;
   color: ${({ theme }) => (theme === 'light' ? colors.dark : 'white')};
-`;
+`
 
 const Picture = styled.img`
   height: 150px;
   width: 150px;
   border-radius: 75px;
-`;
+`
 
 const Title = styled.h1`
   font-size: 25px;
   margin: 0;
   font-weight: 500;
-`;
+`
 
 const JobTitle = styled.h2`
   padding-top: 10px;
   font-size: 20px;
   margin: 0;
   font-weight: 500;
-`;
+`
 
 const Location = styled.span`
   margin-left: 15px;
   color: ${colors.secondary};
-`;
+`
 
 const TitleWrapper = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
-`;
+`
 
 const Price = styled.span`
   padding-top: 10px;
   font-weight: 500;
   font-size: 20px;
-`;
+`
 
 const SkillsWrapper = styled.div`
   display: flex;
   flex-direction: row;
   padding: 10px 0;
-`;
+`
 
 const Skill = styled.span`
   border-radius: 5px;
   padding: 5px;
   margin-right: 5px;
-  border: 1px solid ${({ theme }) => (theme === 'light' ? colors.dark : 'white')};
-`;
+  border: 1px solid
+    ${({ theme }) => (theme === 'light' ? colors.dark : 'white')};
+`
 
 const Availability = styled.span`
   &:before {
@@ -85,26 +87,21 @@ const Availability = styled.span`
   }
   padding-left: 20px;
   position: relative;
-`;
+`
 
 function Profile() {
-  const theme = useSelector(selectTheme);
-  const { id: freelanceId } = useParams();
+  const theme = useSelector(selectTheme)
+  const { id: freelanceId } = useParams()
+  const store = useStore()
+  useEffect(() => {
+    fetchOrUpdateFreelance(store, freelanceId)
+  }, [store, freelanceId])
+  const freelance = useSelector(selectFreelance(freelanceId))
 
-  const { data } = useQuery(
-    // on utilise un tableau pour identifier la requête
-    // on inclut l'Id du freelance dans ce tableau
-    ['freelance', freelanceId],
-    async () => {
-      const response = await fetch(`http://localhost:8000/freelance?id=${freelanceId}`);
-      const data = await response.json();
-      return data;
-    },
-  );
+  const profileData = freelance.data?.freelanceData ?? {}
 
-  const profileData = data?.freelanceData ?? {};
-
-  const { picture, name, location, tjm, job, skills, available, id } = profileData;
+  const { picture, name, location, tjm, job, skills, available, id } =
+    profileData
 
   return (
     <ProfileWrapper theme={theme}>
@@ -129,7 +126,7 @@ function Profile() {
         <Price>{tjm} € / jour</Price>
       </ProfileDetails>
     </ProfileWrapper>
-  );
+  )
 }
 
-export default Profile;
+export default Profile
